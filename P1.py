@@ -35,9 +35,7 @@ class UnionFind:
 def calculate_frequency(string):
     frequency = {}
     for char in string:
-        if char not in frequency:
-            frequency[char] = 0
-        frequency[char] += 1
+        frequency[char] = frequency.get(char, 0) + 1
     return frequency
 
 def build_heap(frequency):
@@ -59,10 +57,10 @@ def merge_nodes(heap):
         heapq.heappush(heap, merged)
 
 def build_codes_helper(root, current_code, codes):
-    if root == None:
+    if root is None:
         return
 
-    if root.char != None:
+    if root.char is not None:
         codes[root.char] = current_code
 
     build_codes_helper(root.left, current_code + "0", codes)
@@ -78,32 +76,17 @@ def huffman_encoding(string):
     heap = build_heap(frequency)
     merge_nodes(heap)
 
-    root = heap[0]
+    root = heap[0]  # The last node remaining is the root
     codes = build_codes(root)
 
-    encoded_string = ""
-    for char in string:
-        encoded_string += codes[char]
+    encoded_string = "".join(codes[char] for char in string)
 
     return encoded_string, root
 
 def min_sum_of_products(arr1, arr2):
-    n = len(arr1)
-    m = len(arr2)
-    dp = [[0] * (m + 1) for _ in range(n + 1)]
-
-    for i in range(n + 1):
-        dp[i][0] = 0
-    for j in range(m + 1):
-        dp[0][j] = 0
-
-    for i in range(1, n + 1):
-        for j in range(1, m + 1):
-            dp[i][j] = float('inf')
-            for k in range(i):
-                dp[i][j] = min(dp[i][j], dp[k][j - 1] + arr1[k] * arr2[j - 1] * arr1[i - 1])
-
-    return dp[n][m]
+    arr1.sort()
+    arr2.sort(reverse=True)
+    return sum(a * b for a, b in zip(arr1, arr2))
 
 def kruskal(graph):
     vertices = list(graph.keys())
@@ -112,6 +95,7 @@ def kruskal(graph):
         for vertex2, weight in graph[vertex1].items():
             edges.append((weight, vertex1, vertex2))
 
+    edges = list(set(edges))  # Remove duplicates
     edges.sort()
 
     mst = []
@@ -126,27 +110,20 @@ def kruskal(graph):
     return mst
 
 def prim(graph, start_vertex):
-    vertices = list(graph.keys())
-    edges = []
-    for vertex1 in graph:
-        for vertex2, weight in graph[vertex1].items():
-            edges.append((weight, vertex1, vertex2))
-
-    edges.sort()
-
     mst = []
     visited = set()
-    visited.add(start_vertex)
+    min_heap = [(0, start_vertex)]  # (weight, vertex)
 
-    while len(visited) < len(vertices):
-        for edge in edges:
-            weight, vertex1, vertex2 = edge
-            if vertex1 in visited and vertex2 not in visited:
-                mst.append(edge)
-                visited.add(vertex2)
-                break
+    while min_heap:
+        weight, vertex = heapq.heappop(min_heap)
+        if vertex not in visited:
+            visited.add(vertex)
+            mst.append((weight, vertex))
+            for neighbor, edge_weight in graph[vertex].items():
+                if neighbor not in visited:
+                    heapq.heappush(min_heap, (edge_weight, neighbor))
 
-    return mst
+    return mst[1:]  # Exclude the initial starting vertex
 
 def main():
     while True:
