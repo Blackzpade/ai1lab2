@@ -48,7 +48,7 @@ def main():
         graph.append((x, y))
 
     path, cost = branch_and_bound(graph)
-    print("Optimal path:", path)
+    print("Optimal path:", " -> ".join([f"({x}, {y})" for x, y in path]))
     print("Total distance:", cost)
 
 if __name__ == "__main__":
